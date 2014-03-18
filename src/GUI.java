@@ -22,6 +22,10 @@ class GUI
   //FRAMES
   JFrame frm;
   JFrame errorLog;
+  JFrame multiFile;
+  //PANELS
+  JPanel single;
+  JPanel multi;
   //TEXTFIELDS
   final JTextField textField;
   final JTextField templateField;
@@ -40,6 +44,7 @@ class GUI
   GridBagLayout gbag = new GridBagLayout();
   GridBagConstraints gbc = new GridBagConstraints();
   File fileChosen;
+  JTabbedPane jtp;
   static final boolean debug = false; //FOR DEBUGGING PURPOSES
   private static GUI instance; //SINGLETON
 
@@ -47,8 +52,13 @@ class GUI
   {
   	//JFrame
     frm = new JFrame("AutoDoc (Microsoft Office Document Automator) v 1.5");
+    single = new JPanel();
+    multi = new JPanel();
     frm.setLayout(gbag);
+    single.setLayout(gbag);
+    multi.setLayout(gbag);
     frm.setSize(640, 220); //give the frame a size
+    single.setSize(640, 220); //give the frame a size
     frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frm.setLocationRelativeTo( null ); //centers window on screen
     frm.setResizable(false); //restricts resizing
@@ -64,7 +74,7 @@ class GUI
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbag.setConstraints(textFile, gbc);
-    frm.add(textFile,gbc);
+    single.add(textFile,gbc);
 
     // TEMPLATE FILE INPUTS
     JPanel templateFile = new JPanel();
@@ -77,7 +87,7 @@ class GUI
     gbc.gridx = 1;
     gbc.gridy = 0;
     gbag.setConstraints(templateFile, gbc);
-    frm.add(templateFile,gbc);
+    single.add(templateFile,gbc);
 
     // BUTTON PANEL
     JPanel btns = new JPanel();
@@ -95,11 +105,11 @@ class GUI
     btns.add(gen);
     gbc.gridx = 1;
     gbc.gridy = 1;
-    frm.add(new JLabel("  "),gbc);
+    single.add(new JLabel("  "),gbc);
     gbc.anchor = GridBagConstraints.EAST;
     gbc.gridx = 1;
     gbc.gridy = 3;
-    frm.add(btns,gbc);
+    single.add(btns,gbc);
 
     // PROGRESS BAR
 		progressBar = new JProgressBar(0, 100);
@@ -108,7 +118,7 @@ class GUI
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.gridx = 0;
 		gbc.gridy = 3;
-		frm.add(progressBar,gbc);
+		single.add(progressBar,gbc);
 		progressBar.setPreferredSize(new Dimension(200,30));
 		progressBar.setVisible(false);
 		progressBar.setString("0%");
@@ -120,7 +130,7 @@ class GUI
     gbc.anchor = GridBagConstraints.CENTER;
     gbc.gridx = 0;
     gbc.gridy = 4;
-    frm.add(status,gbc);
+    single.add(status,gbc);
     if (debug) { status.setText("DEBUG MODE");}
 
     // AUTO OPEN CHECKBOX
@@ -128,11 +138,15 @@ class GUI
     gbc.anchor = GridBagConstraints.EAST;
     gbc.gridx = 1;
     gbc.gridy = 4;
-    frm.add(openCheck,gbc);
+    single.add(openCheck,gbc);
 
     initDragDrop();
     gbc.gridx = 0;
     gbc.gridy = 1;
+    jtp = new JTabbedPane();
+    jtp.addTab("Single", single);
+    jtp.addTab("Multi", multi);
+    frm.add(jtp,gbc);
     frm.setVisible(true);
 
     // ActionListener for Text File Field
@@ -500,5 +514,22 @@ class GUI
         }
       }
     });
+  }
+
+  /**
+  * Spawns window that allows for multiple file generation.
+  */
+  protected void renderMultiFile()
+  {
+		multiFile = new JFrame("Multiple files");  
+    errorLog.setLayout(gbag);
+    errorLog.setSize(500, 400); //give the frame a size
+    errorLog.setLocationRelativeTo( null ); //centers window on screen
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+
+    multiFile.setVisible(true);
+
   }
 }
