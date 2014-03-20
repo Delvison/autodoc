@@ -39,10 +39,15 @@ class GUI
   JButton textBrowse;
   JButton help;
   JProgressBar progressBar;
+	JButton addTxt;
+	JButton removeTxt;
   //CHECKBOXES
   JCheckBox openCheck;
   //LABELS
   JLabel status;
+	//JLIST FOR TEXT FILES
+	JList textfiles;
+	DefaultListModel textfilesList;
   //LAYOUT
   GridBagLayout gbag = new GridBagLayout();
   GridBagConstraints gbc = new GridBagConstraints();
@@ -215,6 +220,37 @@ class GUI
 
         hf.add(tab);
         hf.setVisible(true);
+      }
+    });
+
+		//ACTION LISTENER FOR ADD BUTTON ON MULTI
+    addTxt.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        JFileChooser chooser= new JFileChooser();
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.addChoosableFileFilter(new FileFilter()
+        {
+          public boolean accept(File f)
+          {
+            // Allow directories to be seen.
+            if ( f.isDirectory() )
+            {
+              return true;
+            }
+            if (f.getName().toLowerCase().endsWith(".txt"))
+              return true;
+            return false;
+          }
+          public String getDescription()
+          {
+            return "*.txt";
+          }
+        });
+        int choice = chooser.showOpenDialog(frm);
+        if (choice != JFileChooser.APPROVE_OPTION) return;
+        textfilesList.addElement(chooser.getSelectedFile().getPath());
       }
     });
   }
@@ -542,16 +578,17 @@ class GUI
     multi.setSize(640, 220); 
     
     //JLIST FOR TEXT FILES
-    JList textfiles = new JList();
+    textfilesList = new DefaultListModel();
+    textfiles = new JList(textfilesList);
     textfiles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     JScrollPane filesList = new JScrollPane(textfiles);
     filesList.setPreferredSize(new Dimension(120,90));
 
     //JBUTTON FOR ADDING TEXT FILE
-    JButton addTxt = new JButton("add");
+    addTxt = new JButton("add");
 
     //JBUTTON FOR REMOVING TEXT FILE
-    JButton removeTxt = new JButton("remove");
+    removeTxt = new JButton("remove");
 
     //JPANEL FOR BUTTONS REGARDING TEXT FILE ACTIONS
     JPanel txtButtons = new JPanel();
