@@ -371,10 +371,6 @@ public class Functions
 		{
 			debugger("FAIL FILENOTFOUNDEXCEPTION");
 		}
-		catch( java.io.IOException e )
-		{
-			debugger("FAIL IOEXCEPTION");
-		}
 	}
 
 	/**
