@@ -60,7 +60,7 @@ class GUI
   {
   	//JFrame
     frm = new JFrame("AutoDoc (Microsoft Office Document Automator) v 1.5");
-    frm.setLayout(gbag);
+    frm.setLayout(new FlowLayout());
     frm.setSize(640, 240); //give the frame a size
     frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frm.setLocationRelativeTo( null ); //centers window on screen
@@ -74,7 +74,7 @@ class GUI
     jtp = new JTabbedPane();
     jtp.addTab("Single", single);
     jtp.addTab("Multi", multi);
-    frm.add(jtp,gbc);
+    frm.add(jtp);
     frm.setVisible(true);
 
     // ActionListener for Text File Field
@@ -251,6 +251,14 @@ class GUI
         int choice = chooser.showOpenDialog(frm);
         if (choice != JFileChooser.APPROVE_OPTION) return;
         textfilesList.addElement(chooser.getSelectedFile().getPath());
+      }
+    });
+
+    removeTxt.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+				textfilesList.removeElementAt(textfiles.getSelectedIndex());
       }
     });
   }
@@ -582,7 +590,7 @@ class GUI
     textfiles = new JList(textfilesList);
     textfiles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     JScrollPane filesList = new JScrollPane(textfiles);
-    filesList.setPreferredSize(new Dimension(120,90));
+    filesList.setPreferredSize(new Dimension(280,100));
 
     //JBUTTON FOR ADDING TEXT FILE
     addTxt = new JButton("add");
