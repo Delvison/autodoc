@@ -27,12 +27,15 @@ class GUI
   JPanel single;
   JPanel multi;
   //TEXTFIELDS
-  final JTextField textField;
-  final JTextField templateField;
+  JTextField textField;
+  JTextField templateField;
+  JTextField templateMultiField;
   JComboBox fileType;
   //BUTTONS
   JButton gen;
+  JButton genMulti;
   JButton templateBrowse;
+  JButton templateMultiBrowse;
   JButton textBrowse;
   JButton help;
   JProgressBar progressBar;
@@ -52,97 +55,17 @@ class GUI
   {
   	//JFrame
     frm = new JFrame("AutoDoc (Microsoft Office Document Automator) v 1.5");
-    single = new JPanel();
-    multi = new JPanel();
     frm.setLayout(gbag);
-    single.setLayout(gbag);
-    multi.setLayout(gbag);
-    frm.setSize(640, 220); //give the frame a size
-    single.setSize(640, 220); //give the frame a size
+    frm.setSize(640, 240); //give the frame a size
     frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frm.setLocationRelativeTo( null ); //centers window on screen
     frm.setResizable(false); //restricts resizing
 
-    // TEXTFILE INPUTS
-    JPanel textFile = new JPanel();
-    textFile.setLayout(new FlowLayout());
-    textFile.setBorder(BorderFactory.createTitledBorder("Text file"));
-    textField = new JTextField(15);
-    textFile.add(textField);
-    textBrowse = new JButton("Browse");
-    textFile.add(textBrowse);
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbag.setConstraints(textFile, gbc);
-    single.add(textFile,gbc);
+    //PANES
+    initSingle();
+    initMulti();
 
-    // TEMPLATE FILE INPUTS
-    JPanel templateFile = new JPanel();
-    templateFile.setLayout(new FlowLayout());
-    templateFile.setBorder(BorderFactory.createTitledBorder("Template file"));
-    templateField = new JTextField(15);
-    templateFile.add(templateField);
-    templateBrowse = new JButton("Browse");
-    templateFile.add(templateBrowse);
-    gbc.gridx = 1;
-    gbc.gridy = 0;
-    gbag.setConstraints(templateFile, gbc);
-    single.add(templateFile,gbc);
-
-    // BUTTON PANEL
-    JPanel btns = new JPanel();
-    btns.setLayout(new FlowLayout());
-
-    // HELP BUTTON
-    help = new JButton("?");
-
-    // GENERATE BUTTON
-    gen = new JButton("Generate");
-
-    // ADD HELP & GENERATE BTNS TO PANEL
-    btns.add(help);
-    help.setPreferredSize(new Dimension(35,20));
-    btns.add(gen);
-    gbc.gridx = 1;
-    gbc.gridy = 1;
-    single.add(new JLabel("  "),gbc);
-    gbc.anchor = GridBagConstraints.EAST;
-    gbc.gridx = 1;
-    gbc.gridy = 3;
-    single.add(btns,gbc);
-
-    // PROGRESS BAR
-		progressBar = new JProgressBar(0, 100);
-		progressBar.setValue(0);
-		progressBar.setStringPainted(true);
-		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		single.add(progressBar,gbc);
-		progressBar.setPreferredSize(new Dimension(200,30));
-		progressBar.setVisible(false);
-		progressBar.setString("0%");
-
-    // STATUS LABEL
-		status = new JLabel(" ");
-		status.setMaximumSize(new Dimension(6,6));
-    status.setPreferredSize(new Dimension(200,30));
-    gbc.anchor = GridBagConstraints.CENTER;
-    gbc.gridx = 0;
-    gbc.gridy = 4;
-    single.add(status,gbc);
-    if (debug) { status.setText("DEBUG MODE");}
-
-    // AUTO OPEN CHECKBOX
-    openCheck = new JCheckBox("Auto-open", true);
-    gbc.anchor = GridBagConstraints.EAST;
-    gbc.gridx = 1;
-    gbc.gridy = 4;
-    single.add(openCheck,gbc);
-
-    initDragDrop();
-    gbc.gridx = 0;
-    gbc.gridy = 1;
+    //TABBED PANE
     jtp = new JTabbedPane();
     jtp.addTab("Single", single);
     jtp.addTab("Multi", multi);
@@ -181,7 +104,7 @@ class GUI
     });
 
     // ACTIONLISTENER FOR TEMPLATE FILE FIELD
-    templateBrowse.addActionListener(new ActionListener()
+    ActionListener tempBrowse = new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
       {
@@ -210,8 +133,11 @@ class GUI
         if (choice != JFileChooser.APPROVE_OPTION) return;
         //chooser.setVisible(true);
         templateField.setText(chooser.getSelectedFile().getPath());
+        templateMultiField.setText(chooser.getSelectedFile().getPath());
       }
-    });
+    };
+    templateBrowse.addActionListener(tempBrowse);
+    templateMultiBrowse.addActionListener(tempBrowse);
 
     // ACTIONLISTENER FOR GENERATE BUTTON
     gen.addActionListener(new ActionListener()
@@ -516,20 +442,170 @@ class GUI
     });
   }
 
-  /**
-  * Spawns window that allows for multiple file generation.
-  */
-  protected void renderMultiFile()
-  {
-		multiFile = new JFrame("Multiple files");  
-    errorLog.setLayout(gbag);
-    errorLog.setSize(500, 400); //give the frame a size
-    errorLog.setLocationRelativeTo( null ); //centers window on screen
-    gbc.anchor = GridBagConstraints.CENTER;
+	/**
+	* Initializes pane for single file generation.
+	*/
+	protected void initSingle()
+	{
+    single = new JPanel();
+    single.setLayout(gbag);
+    single.setSize(640, 220); //give the frame a size
+
+    // TEXTFILE INPUTS
+    JPanel textFile = new JPanel();
+    textFile.setLayout(new FlowLayout());
+    textFile.setBorder(BorderFactory.createTitledBorder("Text file"));
+    textField = new JTextField(15);
+    textFile.add(textField);
+    textBrowse = new JButton("Browse");
+    textFile.add(textBrowse);
     gbc.gridx = 0;
     gbc.gridy = 0;
+    gbag.setConstraints(textFile, gbc);
+    single.add(textFile,gbc);
 
-    multiFile.setVisible(true);
+    // TEMPLATE FILE INPUTS
+    JPanel templateFile = new JPanel();
+    templateFile.setLayout(new FlowLayout());
+    templateFile.setBorder(BorderFactory.createTitledBorder("Template file"));
+    templateField = new JTextField(15);
+    templateFile.add(templateField);
+    templateBrowse = new JButton("Browse");
+    templateFile.add(templateBrowse);
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbag.setConstraints(templateFile, gbc);
+    single.add(templateFile,gbc);
 
+    // BUTTON PANEL
+    JPanel btns = new JPanel();
+    btns.setLayout(new FlowLayout());
+
+    // HELP BUTTON
+    help = new JButton("?");
+
+    // GENERATE BUTTON
+    gen = new JButton("Generate");
+
+    // ADD HELP & GENERATE BTNS TO PANEL
+    btns.add(help);
+    help.setPreferredSize(new Dimension(35,20));
+    btns.add(gen);
+    gbc.gridx = 1;
+    gbc.gridy = 1;
+    single.add(new JLabel("  "),gbc);
+    gbc.anchor = GridBagConstraints.EAST;
+    gbc.gridx = 1;
+    gbc.gridy = 3;
+    single.add(btns,gbc);
+
+    // PROGRESS BAR
+		progressBar = new JProgressBar(0, 100);
+		progressBar.setValue(0);
+		progressBar.setStringPainted(true);
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		single.add(progressBar,gbc);
+		progressBar.setPreferredSize(new Dimension(200,30));
+		progressBar.setVisible(false);
+		progressBar.setString("0%");
+
+    // STATUS LABEL
+		status = new JLabel(" ");
+		status.setMaximumSize(new Dimension(6,6));
+    status.setPreferredSize(new Dimension(200,30));
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.gridx = 0;
+    gbc.gridy = 4;
+    single.add(status,gbc);
+    if (debug) { status.setText("DEBUG MODE");}
+
+    // AUTO OPEN CHECKBOX
+    openCheck = new JCheckBox("Auto-open", true);
+    gbc.anchor = GridBagConstraints.EAST;
+    gbc.gridx = 1;
+    gbc.gridy = 4;
+    single.add(openCheck,gbc);
+
+    initDragDrop();
+	}
+
+  /**
+  * Initializes pane for multiple file generation.
+  */
+  protected void initMulti()
+  {
+    //JPANEL FOR MULTI FILE SUPPORT
+    multi = new JPanel();
+    multi.setLayout(gbag);
+    multi.setSize(640, 220); 
+    
+    //JLIST FOR TEXT FILES
+    JList textfiles = new JList();
+    textfiles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    JScrollPane filesList = new JScrollPane(textfiles);
+    filesList.setPreferredSize(new Dimension(120,90));
+
+    //JBUTTON FOR ADDING TEXT FILE
+    JButton addTxt = new JButton("add");
+
+    //JBUTTON FOR REMOVING TEXT FILE
+    JButton removeTxt = new JButton("remove");
+
+    //JPANEL FOR BUTTONS REGARDING TEXT FILE ACTIONS
+    JPanel txtButtons = new JPanel();
+    txtButtons.setLayout(gbag);
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbag.setConstraints(addTxt, gbc);
+    txtButtons.add(addTxt);
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbag.setConstraints(removeTxt, gbc);
+    txtButtons.add(removeTxt);
+
+    //JPANEL FOR JLIST AND BUTTONS
+    JPanel filesPane = new JPanel();
+    filesPane.setLayout(gbag);
+    filesPane.setBorder(BorderFactory.createTitledBorder("Text Files"));
+    
+    //ADD FILES LIST JLIST TO FILES PANEL
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbag.setConstraints(filesList, gbc);
+    filesPane.add(filesList);
+
+    //ADD BUTTON PANEL TO FILES PANEL
+    gbc.gridx = 0;
+    gbc.gridy = 1;
+    gbag.setConstraints(txtButtons, gbc);
+    filesPane.add(txtButtons);
+
+    // TEMPLATE FILE INPUTS
+    JPanel templateFile = new JPanel();
+    templateFile.setLayout(new FlowLayout());
+    templateFile.setBorder(BorderFactory.createTitledBorder("Template file"));
+    templateMultiField = new JTextField(15);
+    templateFile.add(templateMultiField);
+    templateMultiBrowse = new JButton("Browse");
+    templateFile.add(templateMultiBrowse);
+
+    //BUTTON FOR GENERATE
+    genMulti = new JButton("Generate");
+
+    //ADD COMPONENTS TO MAIN PANEL
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbag.setConstraints(filesPane, gbc);
+    multi.add(filesPane,gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbag.setConstraints(templateFile, gbc);
+    multi.add(templateFile,gbc);
+    gbc.gridx = 1;
+    gbc.gridy = 1;
+    gbag.setConstraints(genMulti, gbc);
+    multi.add(genMulti,gbc);
   }
 }
