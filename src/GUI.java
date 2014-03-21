@@ -240,19 +240,24 @@ class GUI
             status.setText("Generating file...");
             File fileToSave = chooser.getSelectedFile();
             targetPath = fileToSave.getAbsolutePath();
-
-            //CYCLE THROUGH ALL TEXT FILES
-            for (int i=0; i<textfilesList.getSize(); i++) {
-              textFilePath = (String)textfilesList.getElementAt(0);
-              textField.setText(textFilePath);
-              // FIX THIS
-              String finalPath = targetPath + i;
-              jtp.setSelectedIndex(0);
-							ProcessThread pt = new ProcessThread(textFilePath, templatePath,
-																					finalPath, false, false );
-							pt.start();
-							textfilesList.removeElementAt(textfiles.getSelectedIndex());
-            }
+						try
+						{
+							//CYCLE THROUGH ALL TEXT FILES
+							int limit = textfilesList.getSize();
+							for (int i=0; i<limit; i++) {
+								textFilePath = (String)textfilesList.getElementAt(0);
+								textField.setText(textFilePath);
+								// FIX THIS
+								String finalPath = targetPath + i;
+								jtp.setSelectedIndex(0);
+								ProcessThread pt = new ProcessThread(textFilePath, templatePath,
+																						finalPath, false, false );
+								pt.start();
+								pt.join();
+								textfilesList.removeElementAt(textfiles.getSelectedIndex());
+								multiCount.setText(textfilesList.getSize()+ " files");
+							}
+						} catch (InterruptedException e){ e.printStackTrace(); }
           }
         } else { setStatus("Error: Choose files."); }
       }
