@@ -243,9 +243,11 @@ class GUI
 
             //CYCLE THROUGH ALL TEXT FILES
             for (int i=0; i<textfilesList.getSize(); i++) {
-              textFilePath = (String)textfilesList.getElementAt(i);
+              textFilePath = (String)textfilesList.getElementAt(0);
+              textField.setText(textFilePath);
               // FIX THIS
               String finalPath = targetPath + i;
+              jtp.setSelectedIndex(0);
 							ProcessThread pt = new ProcessThread(textFilePath, templatePath,
 																					finalPath, false, false );
 							pt.start();
@@ -313,6 +315,7 @@ class GUI
         if (choice != JFileChooser.APPROVE_OPTION) return;
         textfilesList.addElement(chooser.getSelectedFile().getPath());
       	multiCount.setText(textfilesList.getSize()+ " files");
+      	textField.setText((String)textfilesList.getElementAt(0));
       }
     });
 
