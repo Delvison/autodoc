@@ -45,6 +45,7 @@ class GUI
   JCheckBox openCheck;
   //LABELS
   JLabel status;
+  JLabel multiCount;
 	//JLIST FOR TEXT FILES
 	JList textfiles;
 	DefaultListModel textfilesList;
@@ -105,6 +106,7 @@ class GUI
         int choice = chooser.showOpenDialog(frm);
         if (choice != JFileChooser.APPROVE_OPTION) return;
         textField.setText(chooser.getSelectedFile().getPath());
+        textfilesList.addElement(chooser.getSelectedFile().getPath());
       }
     });
 
@@ -195,6 +197,65 @@ class GUI
       }
     });
 
+    // ACTIONLISTENER FOR GENERATE BUTTON ON MULTI
+    genMulti.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent thing)
+      {
+        status.setForeground(Color.BLACK);
+        String templatePath="";
+        String textFilePath="";
+        progressBar.setValue(0);
+        templatePath = templateField.getText();
+        textFilePath = textField.getText();
+        if (!templatePath.equals("") && !textFilePath.equals(""))
+        {
+          //SAVE FILECHOOSER
+          JFileChooser chooser = new JFileChooser();
+          chooser.setDialogTitle("Specify where to save file");
+          chooser.addChoosableFileFilter(new FileFilter()
+          {
+            public boolean accept(File f)
+            {
+              if (f.isDirectory())
+              {
+                return true;
+              }
+                return false;
+            }
+
+            public String getDescription()
+            {
+              String templatePath = templateField.getText();
+              return templatePath.substring(templatePath.lastIndexOf('.'),
+                                            templatePath.length());
+            }
+          });
+
+          int userSelection = chooser.showSaveDialog(frm);
+          String targetPath = "";
+          if (userSelection == JFileChooser.APPROVE_OPTION)
+          {
+            progressBar.setVisible(true);
+            status.setText("Generating file...");
+            File fileToSave = chooser.getSelectedFile();
+            targetPath = fileToSave.getAbsolutePath();
+
+            //CYCLE THROUGH ALL TEXT FILES
+            for (int i=0; i<textfilesList.getSize(); i++) {
+              textFilePath = (String)textfilesList.getElementAt(i);
+              // FIX THIS
+              String finalPath = targetPath + i;
+							ProcessThread pt = new ProcessThread(textFilePath, templatePath,
+																					finalPath, false, false );
+							pt.start();
+							textfilesList.removeElementAt(textfiles.getSelectedIndex());
+            }
+          }
+        } else { setStatus("Error: Choose files."); }
+      }
+    });
+
     // HELP ACTION LISTENER
     help.addActionListener(new ActionListener()
     {
@@ -251,6 +312,7 @@ class GUI
         int choice = chooser.showOpenDialog(frm);
         if (choice != JFileChooser.APPROVE_OPTION) return;
         textfilesList.addElement(chooser.getSelectedFile().getPath());
+      	multiCount.setText(textfilesList.getSize()+ " files");
       }
     });
 
@@ -259,6 +321,7 @@ class GUI
       public void actionPerformed(ActionEvent e)
       {
 				textfilesList.removeElementAt(textfiles.getSelectedIndex());
+      	multiCount.setText(textfilesList.getSize()+ " files");
       }
     });
   }
@@ -582,7 +645,7 @@ class GUI
   {
     //JPANEL FOR MULTI FILE SUPPORT
     multi = new JPanel();
-    multi.setLayout(gbag);
+    multi.setLayout(new FlowLayout());
     multi.setSize(640, 220); 
     
     //JLIST FOR TEXT FILES
@@ -628,6 +691,8 @@ class GUI
     filesPane.add(txtButtons);
 
     // TEMPLATE FILE INPUTS
+    JPanel multiRight = new JPanel();
+    multiRight.setLayout(gbag);
     JPanel templateFile = new JPanel();
     templateFile.setLayout(new FlowLayout());
     templateFile.setBorder(BorderFactory.createTitledBorder("Template file"));
@@ -636,21 +701,31 @@ class GUI
     templateMultiBrowse = new JButton("Browse");
     templateFile.add(templateMultiBrowse);
 
+    //JLABEL THAT INDICATED AMOUNT OF TEXTFILES
+    multiCount = new JLabel("");
+
     //BUTTON FOR GENERATE
     genMulti = new JButton("Generate");
 
-    //ADD COMPONENTS TO MAIN PANEL
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbag.setConstraints(filesPane, gbc);
-    multi.add(filesPane,gbc);
-    gbc.gridx = 1;
-    gbc.gridy = 0;
     gbag.setConstraints(templateFile, gbc);
-    multi.add(templateFile,gbc);
-    gbc.gridx = 1;
+    multiRight.add(templateFile, gbc);
+    gbc.gridx = 0;
     gbc.gridy = 1;
+    gbag.setConstraints(multiCount, gbc);
+    multiRight.add(multiCount, gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 2;
     gbag.setConstraints(genMulti, gbc);
-    multi.add(genMulti,gbc);
+    multiRight.add(genMulti, gbc);
+    gbc.gridx = 0;
+    gbc.gridy = 3;
+    gbag.setConstraints(status, gbc);
+    multiRight.add(status, gbc);
+
+    //ADD COMPONENTS TO MAIN PANEL
+    multi.add(filesPane);
+    multi.add(multiRight);
   }
 }
